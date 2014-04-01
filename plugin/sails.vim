@@ -45,9 +45,9 @@ function! s:addfilecmds(type)
 endfunction
 
 function! s:controllerEdit(cmd,...)
-  let controller = matchstr(a:1, '[^#!]*')
-  let file_path = b:sails_root . "/api/controllers/" controller_name . "Controller.js"
-  execute 'edit ' . t_path
+  let controller_name = matchstr(a:1, '[^#!]*')
+  let file_path = b:sails_root . "/api/controllers/" . controller_name . "Controller.js"
+  execute 'edit '. file_path
 endfunction
 
 function! s:SailsNavigation()

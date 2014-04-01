@@ -43,10 +43,31 @@ function! s:addfilecmds(type)
   endfor
 endfunction
 
+function! s:camelize(str)
+  let str = s:gsub(a:str,'/(.=)','::\u\1')
+  let str = s:gsub(str,'%([_-]|<)(.)','\u\1')
+  return str
+endfunction
+
+function! s:gsub(str,pat,rep)
+  return substitute(a:str,'\v\C'.a:pat,a:rep,'g')
+endfunction
+
 function! s:controllerEdit(cmd,...)
   let controller_name = matchstr(a:1, '[^#!]*')
-  let file_path = b:sails_root . "/api/controllers/" . controller_name . "Controller.js"
-  execute 'edit '. file_path
+  let file_candidates = [
+        \b:sails_root . "/api/controllers/" . controller_name . "Controller.js",
+        \b:sails_root . "/api/controllers/" . controller_name . ".js",
+        \b:sails_root . "/api/controllers/" . controller_name,
+        \b:sails_root . "/api/controllers/" . s:camelize(controller_name) . "Controller.js",
+        \b:sails_root . "/api/controllers/" . s:camelize(controller_name) . ".js",
+        \b:sails_root . "/api/controllers/" . s:camelize(controller_name)
+        \]
+  for file_path in file_candidates
+    if filereadable(file_path)
+      execute 'edit '. file_path
+    endif
+  endfor
 endfunction
 
 function! s:SailsNavigation()

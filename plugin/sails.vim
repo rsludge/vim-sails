@@ -30,8 +30,33 @@ function! s:BufInit(path)
   let b:sails_root = a:path
 endfunction
 
+function! s:sub(str,pat,rep)
+  return substitute(a:str,'\v\C'.a:pat,a:rep,'')
+endfunction
+
+let s:sid = s:sub(maparg("<SID>xx"),'xx$','')
+
+function! s:addfilecmds(type)
+  let l = s:sub(a:type,'^.','\l&')
+  for prefix in ['E', 'S', 'V', 'T', 'D', 'R', 'RE', 'RS', 'RV', 'RT', 'RD']
+    let cplt = " -complete=customlist,".s:sid.l."List"
+    exe "command! -buffer -bar ".(prefix =~# 'D' ? '-range=0 ' : '')."-nargs=*".cplt." ".prefix.l." :execute s:".l.'Edit("'.(prefix =~# 'D' ? '<line1>' : '').s:sub(prefix, '^R', '').'<bang>",<f-args>)'
+  endfor
+endfunction
+
+function! s:controllerEdit(cmd,...)
+  let controller = matchstr(a:1, '[^#!]*')
+  let file_path = b:sails_root . "/api/controllers/" controller_name . "Controller.js"
+  execute 'edit ' . t_path
+endfunction
+
+function! s:SailsNavigation()
+  call s:addfilecmds("controller")
+endfunction
+
 augroup sailsPlugin
   autocmd!
+  autocmd User BufEnterSails call s:SailsNavigation()
   autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
   autocmd BufEnter * if exists("b:sails_root")|silent doau User BufEnterSails|endif
 augroup END

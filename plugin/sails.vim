@@ -67,6 +67,12 @@ function! s:controllerList(A,L,P)
   return s:autocamelize(con,a:A)
 endfunction
 
+function! s:modelList(A,L,P)
+  let con = s:relglob("api/models/","**/*",".js")
+  call map(con,'s:sub(v:val,"$","")')
+  return s:autocamelize(con,a:A)
+endfunction
+
 function! s:addfilecmds(type)
   let l = s:sub(a:type,'^.','\l&')
   let cplt = " -complete=customlist,s:".s:sid.l."List"
@@ -145,6 +151,23 @@ function! s:editcmdfor(cmd)
   return cmd
 endfunction
 
+function! s:modelEdit(cmd,...)
+  let model_name = matchstr(a:1, '[^#!]*')
+  let file_candidates = [
+        \b:sails_root . "/api/models/" . model_name . ".js",
+        \b:sails_root . "/api/models/" . model_name,
+        \b:sails_root . "/api/models/" . s:camelize(model_name) . ".js",
+        \b:sails_root . "/api/models/" . s:camelize(model_name)
+        \]
+
+  let cmd = s:editcmdfor(a:cmd)
+  for file_path in file_candidates
+    if filereadable(file_path)
+      return cmd . file_path
+    endif
+  endfor
+endfunction
+
 function! s:controllerEdit(cmd,...)
   let controller_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
@@ -166,6 +189,7 @@ endfunction
 
 function! s:SailsNavigation()
   call s:addfilecmds("controller")
+  call s:addfilecmds("model")
 endfunction
 
 augroup sailsPlugin

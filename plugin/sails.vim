@@ -109,6 +109,42 @@ function! s:gsub(str,pat,rep)
   return substitute(a:str,'\v\C'.a:pat,a:rep,'g')
 endfunction
 
+function! s:findcmdfor(cmd)
+  let bang = ''
+  if a:cmd =~ '\!$'
+    let bang = '!'
+    let cmd = s:sub(a:cmd,'\!$','')
+  else
+    let cmd = a:cmd
+  endif
+  if cmd =~ '^\d'
+    let num = matchstr(cmd,'^\d\+')
+    let cmd = s:sub(cmd,'^\d+','')
+  else
+    let num = ''
+  endif
+  if cmd == '' || cmd == 'E' || cmd == 'F'
+    return num.'find'.bang
+  elseif cmd == 'S'
+    return num.'sfind'.bang
+  elseif cmd == 'V'
+    return 'vert '.num.'sfind'.bang
+  elseif cmd == 'T'
+    return num.'tabfind'.bang
+  elseif cmd == 'D'
+    return num.'read'.bang
+  else
+    return num.cmd.bang
+  endif
+endfunction
+
+function! s:editcmdfor(cmd)
+  let cmd = s:findcmdfor(a:cmd)
+  let cmd = s:sub(cmd,'<sfind>','split')
+  let cmd = s:sub(cmd,'find>','edit')
+  return cmd
+endfunction
+
 function! s:controllerEdit(cmd,...)
   let controller_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
@@ -119,9 +155,11 @@ function! s:controllerEdit(cmd,...)
         \b:sails_root . "/api/controllers/" . s:camelize(controller_name) . ".js",
         \b:sails_root . "/api/controllers/" . s:camelize(controller_name)
         \]
+
+  let cmd = s:editcmdfor(a:cmd)
   for file_path in file_candidates
     if filereadable(file_path)
-      execute 'edit '. file_path
+      return cmd . file_path
     endif
   endfor
 endfunction

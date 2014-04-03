@@ -73,6 +73,12 @@ function! s:modelList(A,L,P)
   return s:autocamelize(con,a:A)
 endfunction
 
+function! s:policyList(A,L,P)
+  let con = s:relglob("api/policies/","**/*",".js")
+  call map(con,'s:sub(v:val,"$","")')
+  return s:autocamelize(con,a:A)
+endfunction
+
 function! s:viewList(A,L,P)
   let con = s:relglob("views/","**/*",".ejs")
   call map(con,'s:sub(v:val,"$","")')
@@ -157,6 +163,22 @@ function! s:editcmdfor(cmd)
   return cmd
 endfunction
 
+function! s:policyEdit(cmd,...)
+  let policy_name = matchstr(a:1, '[^#!]*')
+  let file_candidates = [
+        \b:sails_root . "/api/policies/" . policy_name . ".js",
+        \b:sails_root . "/api/policies/" . policy_name,
+        \b:sails_root . "/api/policies/" . s:camelize(policy_name) . ".js",
+        \b:sails_root . "/api/policies/" . s:camelize(policy_name)
+        \]
+  let cmd = s:editcmdfor(a:cmd)
+  for file_path in file_candidates
+    if filereadable(file_path)
+      return cmd . file_path
+    endif
+  endfor
+endfunction
+
 function! s:modelEdit(cmd,...)
   let model_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
@@ -165,7 +187,6 @@ function! s:modelEdit(cmd,...)
         \b:sails_root . "/api/models/" . s:camelize(model_name) . ".js",
         \b:sails_root . "/api/models/" . s:camelize(model_name)
         \]
-
   let cmd = s:editcmdfor(a:cmd)
   for file_path in file_candidates
     if filereadable(file_path)
@@ -182,7 +203,6 @@ function! s:viewEdit(cmd,...)
         \b:sails_root . "/views/" . s:camelize(view_name) . ".ejs",
         \b:sails_root . "/views/" . s:camelize(view_name)
         \]
-
   let cmd = s:editcmdfor(a:cmd)
   for file_path in file_candidates
     if filereadable(file_path)
@@ -201,7 +221,6 @@ function! s:controllerEdit(cmd,...)
         \b:sails_root . "/api/controllers/" . s:camelize(controller_name) . ".js",
         \b:sails_root . "/api/controllers/" . s:camelize(controller_name)
         \]
-
   let cmd = s:editcmdfor(a:cmd)
   for file_path in file_candidates
     if filereadable(file_path)
@@ -214,6 +233,7 @@ function! s:SailsNavigation()
   call s:addfilecmds("controller")
   call s:addfilecmds("model")
   call s:addfilecmds("view")
+  call s:addfilecmds("policy")
 endfunction
 
 augroup sailsPlugin

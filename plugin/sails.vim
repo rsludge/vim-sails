@@ -79,6 +79,12 @@ function! s:configList(A,L,P)
   return s:autocamelize(con,a:A)
 endfunction
 
+function! s:serviceList(A,L,P)
+  let con = s:relglob("api/services/","**/*",".js")
+  call map(con,'s:sub(v:val,"$","")')
+  return s:autocamelize(con,a:A)
+endfunction
+
 function! s:policyList(A,L,P)
   let con = s:relglob("api/policies/","**/*",".js")
   call map(con,'s:sub(v:val,"$","")')
@@ -217,6 +223,22 @@ function! s:configEdit(cmd,...)
   endfor
 endfunction
 
+function! s:serviceEdit(cmd,...)
+  let service_name = matchstr(a:1, '[^#!]*')
+  let file_candidates = [
+        \b:sails_root . "/api/services/" . service_name . ".js",
+        \b:sails_root . "/api/services/" . service_name,
+        \b:sails_root . "/api/services/" . s:camelize(service_name) . ".js",
+        \b:sails_root . "/api/services/" . s:camelize(service_name)
+        \]
+  let cmd = s:editcmdfor(a:cmd)
+  for file_path in file_candidates
+    if filereadable(file_path)
+      return cmd . file_path
+    endif
+  endfor
+endfunction
+
 function! s:viewEdit(cmd,...)
   let view_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
@@ -257,6 +279,7 @@ function! s:SailsNavigation()
   call s:addfilecmds("view")
   call s:addfilecmds("policy")
   call s:addfilecmds("config")
+  call s:addfilecmds("service")
 endfunction
 
 augroup sailsPlugin

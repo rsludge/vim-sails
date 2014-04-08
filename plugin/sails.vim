@@ -67,34 +67,30 @@ function! s:controllerList(A,L,P)
   return s:autocamelize(con,a:A)
 endfunction
 
-function! s:modelList(A,L,P)
-  let con = s:relglob("api/models/","**/*",".js")
+function! s:itemList(path, A)
+  let con = s:relglob(a:path,"**/*",".js")
   call map(con,'s:sub(v:val,"$","")')
   return s:autocamelize(con,a:A)
+endfunction
+
+function! s:modelList(A,L,P)
+  return s:itemList("api/models/", a:A)
 endfunction
 
 function! s:configList(A,L,P)
-  let con = s:relglob("config/","**/*",".js")
-  call map(con,'s:sub(v:val,"$","")')
-  return s:autocamelize(con,a:A)
+  return s:itemList("config/", a:A)
 endfunction
 
 function! s:serviceList(A,L,P)
-  let con = s:relglob("api/services/","**/*",".js")
-  call map(con,'s:sub(v:val,"$","")')
-  return s:autocamelize(con,a:A)
+  return s:itemList("api/services/", a:A)
 endfunction
 
 function! s:adapterList(A,L,P)
-  let con = s:relglob("api/adapters/","**/*",".js")
-  call map(con,'s:sub(v:val,"$","")')
-  return s:autocamelize(con,a:A)
+  return s:itemList("api/adapters/", a:A)
 endfunction
 
 function! s:policyList(A,L,P)
-  let con = s:relglob("api/policies/","**/*",".js")
-  call map(con,'s:sub(v:val,"$","")')
-  return s:autocamelize(con,a:A)
+  return s:itemList("api/policies/", a:A)
 endfunction
 
 function! s:viewList(A,L,P)
@@ -181,13 +177,13 @@ function! s:editcmdfor(cmd)
   return cmd
 endfunction
 
-function! s:policyEdit(cmd,...)
-  let policy_name = matchstr(a:1, '[^#!]*')
+function! s:itemEdit(cmd, path, pattern)
+  let item_name = matchstr(a:pattern, '[^#!]*')
   let file_candidates = [
-        \b:sails_root . "/api/policies/" . policy_name . ".js",
-        \b:sails_root . "/api/policies/" . policy_name,
-        \b:sails_root . "/api/policies/" . s:camelize(policy_name) . ".js",
-        \b:sails_root . "/api/policies/" . s:camelize(policy_name)
+        \b:sails_root . a:path . item_name . ".js",
+        \b:sails_root . a:path . item_name,
+        \b:sails_root . a:path . s:camelize(item_name) . ".js",
+        \b:sails_root . a:path . s:camelize(item_name)
         \]
   let cmd = s:editcmdfor(a:cmd)
   for file_path in file_candidates
@@ -195,70 +191,26 @@ function! s:policyEdit(cmd,...)
       return cmd . file_path
     endif
   endfor
+endfunction
+
+function! s:policyEdit(cmd,...)
+  return s:itemEdit(a:cmd, "/api/policies/", a:1)
 endfunction
 
 function! s:modelEdit(cmd,...)
-  let model_name = matchstr(a:1, '[^#!]*')
-  let file_candidates = [
-        \b:sails_root . "/api/models/" . model_name . ".js",
-        \b:sails_root . "/api/models/" . model_name,
-        \b:sails_root . "/api/models/" . s:camelize(model_name) . ".js",
-        \b:sails_root . "/api/models/" . s:camelize(model_name)
-        \]
-  let cmd = s:editcmdfor(a:cmd)
-  for file_path in file_candidates
-    if filereadable(file_path)
-      return cmd . file_path
-    endif
-  endfor
+  return s:itemEdit(a:cmd, "/api/models/", a:1)
 endfunction
 
 function! s:configEdit(cmd,...)
-  let config_name = matchstr(a:1, '[^#!]*')
-  let file_candidates = [
-        \b:sails_root . "/config/" . config_name . ".js",
-        \b:sails_root . "/config/" . config_name,
-        \b:sails_root . "/config/" . s:camelize(config_name) . ".js",
-        \b:sails_root . "/config/" . s:camelize(config_name)
-        \]
-  let cmd = s:editcmdfor(a:cmd)
-  for file_path in file_candidates
-    if filereadable(file_path)
-      return cmd . file_path
-    endif
-  endfor
+  return s:itemEdit(a:cmd, "/config/", a:1)
 endfunction
 
 function! s:serviceEdit(cmd,...)
-  let service_name = matchstr(a:1, '[^#!]*')
-  let file_candidates = [
-        \b:sails_root . "/api/services/" . service_name . ".js",
-        \b:sails_root . "/api/services/" . service_name,
-        \b:sails_root . "/api/services/" . s:camelize(service_name) . ".js",
-        \b:sails_root . "/api/services/" . s:camelize(service_name)
-        \]
-  let cmd = s:editcmdfor(a:cmd)
-  for file_path in file_candidates
-    if filereadable(file_path)
-      return cmd . file_path
-    endif
-  endfor
+  return s:itemEdit(a:cmd, "/api/services/", a:1)
 endfunction
 
 function! s:adapterEdit(cmd,...)
-  let adapter_name = matchstr(a:1, '[^#!]*')
-  let file_candidates = [
-        \b:sails_root . "/api/adapters/" . adapter_name . ".js",
-        \b:sails_root . "/api/adapters/" . adapter_name,
-        \b:sails_root . "/api/adapters/" . s:camelize(adapter_name) . ".js",
-        \b:sails_root . "/api/adapters/" . s:camelize(adapter_name)
-        \]
-  let cmd = s:editcmdfor(a:cmd)
-  for file_path in file_candidates
-    if filereadable(file_path)
-      return cmd . file_path
-    endif
-  endfor
+  return s:itemEdit(a:cmd, "/api/adapters/", a:1)
 endfunction
 
 function! s:viewEdit(cmd,...)

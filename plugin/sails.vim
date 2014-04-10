@@ -14,7 +14,7 @@ function! s:Detect(filename)
   endif
   let ofn = ""
   while fn != ofn
-    if filereadable(fn . "/config/controllers.js")
+    if filereadable(fn . "/config/controllers.js") && fn != "."
       return s:BufInit(resolve(fn))
     endif
     let ofn = fn
@@ -23,6 +23,7 @@ function! s:Detect(filename)
       let fn = ''
     endif
   endwhile
+  call s:Leave()
   return 0
 endfunction
 
@@ -255,6 +256,10 @@ function! s:SailsNavigation()
   call s:addfilecmds("config")
   call s:addfilecmds("service")
   call s:addfilecmds("adapter")
+endfunction
+
+function! s:Leave()
+  unlet! b:sails_root
 endfunction
 
 augroup sailsPlugin

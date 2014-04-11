@@ -37,6 +37,13 @@ endfunction
 
 let s:sid = s:sub(maparg("<SID>xx"),'xx$','')
 
+function! s:error(str)
+  echohl ErrorMsg
+  echomsg a:str
+  echohl None
+  let v:errmsg = a:str
+endfunction
+
 function! s:completion_filter(results,A)
   let results = sort(type(a:results) == type("") ? split(a:results,"\n") : copy(a:results))
   call filter(results,'v:val !~# "\\~$"')
@@ -195,26 +202,50 @@ function! s:itemEdit(cmd, path, pattern)
 endfunction
 
 function! s:policyEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Policy name not specified")
+    return
+  endif
   return s:itemEdit(a:cmd, "/api/policies/", a:1)
 endfunction
 
 function! s:modelEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Model name not specified")
+    return
+  endif
   return s:itemEdit(a:cmd, "/api/models/", a:1)
 endfunction
 
 function! s:configEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Config name not specified")
+    return
+  endif
   return s:itemEdit(a:cmd, "/config/", a:1)
 endfunction
 
 function! s:serviceEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Service name not specified")
+    return
+  endif
   return s:itemEdit(a:cmd, "/api/services/", a:1)
 endfunction
 
 function! s:adapterEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Adapter name not specified")
+    return
+  endif
   return s:itemEdit(a:cmd, "/api/adapters/", a:1)
 endfunction
 
 function! s:viewEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("View name not specified")
+    return
+  endif
   let view_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
         \b:sails_root . "/views/" . view_name . ".ejs",
@@ -231,6 +262,10 @@ function! s:viewEdit(cmd,...)
 endfunction
 
 function! s:controllerEdit(cmd,...)
+  if !exists("a:1")
+    call s:error("Controller name not specified")
+    return
+  endif
   let controller_name = matchstr(a:1, '[^#!]*')
   let file_candidates = [
         \b:sails_root . "/api/controllers/" . controller_name . "Controller.js",

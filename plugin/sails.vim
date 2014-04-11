@@ -199,6 +199,7 @@ function! s:itemEdit(cmd, path, pattern)
       return cmd . file_path
     endif
   endfor
+  call s:error("Item not found")
 endfunction
 
 function! s:policyEdit(cmd,...)
@@ -259,6 +260,7 @@ function! s:viewEdit(cmd,...)
       return cmd . file_path
     endif
   endfor
+  call s:error("View not found")
 endfunction
 
 function! s:controllerEdit(cmd,...)
@@ -281,6 +283,7 @@ function! s:controllerEdit(cmd,...)
       return cmd . file_path
     endif
   endfor
+  call s:error("Controller not found")
 endfunction
 
 function! s:SailsNavigation()

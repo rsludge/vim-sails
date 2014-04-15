@@ -27,6 +27,16 @@ function! s:Detect(filename)
   return 0
 endfunction
 
+function! s:rquote(str)
+  if a:str =~ '^[A-Za-z0-9_/.:-]\+$'
+    return a:str
+  elseif &shell =~? 'cmd'
+    return '"'.s:gsub(s:gsub(a:str, '"', '""'), '\%', '"%"').'"'
+  else
+    return shellescape(a:str)
+  endif
+endfunction
+
 function! s:BufInit(path)
   let b:sails_root = a:path
 endfunction
@@ -286,6 +296,27 @@ function! s:controllerEdit(cmd,...)
   call s:error("Controller not found")
 endfunction
 
+function s:Complete_generate(A, L, P)
+endfunction
+
+function! s:prepare_sails_command(cmd)
+  return 'sails '.a:cmd
+endfunction
+
+function s:generator_command(bang,...)
+  let cmd = join(map(copy(a:000),'s:rquote(v:val)'),' ')
+  let &l:makeprg = s:prepare_sails_command(cmd)
+  if a:bang
+    make!
+  else
+    make
+  endif
+endfunction
+
+function! s:addgenerators()
+  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Sgenerate :execute s:generator_command(<bang>0,'generate',<f-args>)
+endfunction
+
 function! s:SailsNavigation()
   call s:addfilecmds("controller")
   call s:addfilecmds("model")
@@ -294,6 +325,7 @@ function! s:SailsNavigation()
   call s:addfilecmds("config")
   call s:addfilecmds("service")
   call s:addfilecmds("adapter")
+  call s:addgenerators()
 endfunction
 
 function! s:Leave()

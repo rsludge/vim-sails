@@ -297,6 +297,7 @@ function! s:controllerEdit(cmd,...)
 endfunction
 
 function s:Complete_generate(A, L, P)
+  return s:completion_filter(['controller', 'model', 'view', 'adapter'], a:A)
 endfunction
 
 function! s:prepare_sails_command(cmd)

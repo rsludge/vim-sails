@@ -10,3 +10,5 @@ Plugin can be installed with Vundle or NeoBundle.
 
 While editing Sails project you can use :Econtroller or :Emodel commands to navigate project file structure.
 `:Econtroller`, `:Emodel`, `:Eview`, `:Epolicy`, `:Econfig`, `:Eservice`, `:Eadapter` commands are allowed. Also variants with `S`, `V`, `T` are available for splits and tabedit.
+
+Also supported `:Sgenerate` command that wraps `sails generate` console command.

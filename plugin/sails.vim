@@ -296,7 +296,7 @@ function! s:controllerEdit(cmd,...)
   call s:error("Controller not found")
 endfunction
 
-function s:Complete_generate(A, L, P)
+function! s:Complete_generate(A, L, P)
   return s:completion_filter(['controller', 'model', 'view', 'adapter'], a:A)
 endfunction
 
@@ -304,7 +304,7 @@ function! s:prepare_sails_command(cmd)
   return 'sails '.a:cmd
 endfunction
 
-function s:generator_command(bang,...)
+function! s:generator_command(bang,...)
   let cmd = join(map(copy(a:000),'s:rquote(v:val)'),' ')
   let &l:makeprg = s:prepare_sails_command(cmd)
   if a:bang
